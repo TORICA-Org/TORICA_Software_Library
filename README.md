@@ -1,0 +1,2 @@
+# TORICA_Softwarelib
+ソフトウェアのライブラリ
