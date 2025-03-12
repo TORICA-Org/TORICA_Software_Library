@@ -12,6 +12,13 @@ bool TORICA_SD::begin()
   SPI.setSCK(SD_SPI_SCK);
   SPI.setTX(SD_SPI_MOSI);
   if (!SD.begin(cs_SD, SPI))
+#elif defined(RASPBERRY_PI_PICO)
+  SPI.setRX(SD_SPI_MISO);
+  SPI.setCS(SD_SPI_CSn);
+  SPI.setSCK(SD_SPI_SCK);
+  SPI.setTX(SD_SPI_MOSI);
+  if (!SD.begin(cs_SD, SPI))
+
 #else
   if (!SD.begin(cs_SD))
 #endif
