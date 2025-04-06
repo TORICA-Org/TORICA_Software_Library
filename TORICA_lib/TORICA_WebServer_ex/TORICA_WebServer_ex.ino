@@ -9,11 +9,13 @@
 //WiFiのPASSWORDは toricadensou です．
 
 //2025.04.07時点で以下のマイコンでコンパイルが可能です．
-//ESP32C3
 //Raspberry Pi Pico W
 //Raspberry Pi Pico 2W
 
-#include "TORICA_WebServer.h"
+//ESP32では不能
+//TORICA_libにある他のライブラリが対応していない
+
+#include <TORICA_WebServer.h>
 
 TORICA_WebServer webserver;
 
