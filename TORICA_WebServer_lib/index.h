@@ -28,7 +28,7 @@ char html[] = R"(
       font-size: 15 px;
       text-align: left;
       word-wrap: break-word;
-      white-space: pre-line; /* 改行コードを有効化 */
+      white-space: pre; /* 改行コードを有効化 */
     }
     .monitor {
       margin: 10px auto;
