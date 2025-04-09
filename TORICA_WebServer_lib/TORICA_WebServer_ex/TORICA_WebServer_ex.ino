@@ -30,7 +30,7 @@ void setup() {
 void loop() {
   uint32_t now = millis();
   char str[128];
-  sprintf(str,"改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
+  sprintf(str, "改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
   webserver.update(str);
   delay(100);
 }
