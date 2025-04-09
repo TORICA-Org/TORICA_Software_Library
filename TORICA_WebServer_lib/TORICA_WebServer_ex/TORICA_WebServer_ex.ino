@@ -1,9 +1,15 @@
 //TORICA_WebServer
-
 //WiFiを利用したスマートフォンやPCで確認できるデバッグ用モニターです．
 
+//TORICA_libとは別にライブラリをインクルードする必要があります．
+//GitHubから「Download ZIP」した場合には
+//以下の手順でインクルードできます
+//「スケッチ」
+//→「ライブラリのインクルード」
+//→「.ZIP形式のライブラリをインストール...」
+
 //「ログインが必要です」などと表示される画面（キャプティブポータル）で
-//任意の文字列（改行コードを含む）をモニターできます．
+//任意の長さが256までの文字列（改行コードを含む）をモニターできます．
 
 //WiFiのSSIDは TORICA WebServer
 //WiFiのPASSWORDは toricadensou です．
@@ -24,7 +30,7 @@ void setup() {
 void loop() {
   uint32_t now = millis();
   char str[128];
-  sprintf(str, "改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
+  sprintf(str,"改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
   webserver.update(str);
   delay(100);
 }
