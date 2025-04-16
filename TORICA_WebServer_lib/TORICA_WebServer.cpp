@@ -14,7 +14,7 @@ IPAddress netMsk(255, 255, 255, 0);
 
 TORICA_WebServer::TORICA_WebServer () {}
 
-char TORICA_WebServer::data[256];
+char TORICA_WebServer::data[10*1024];
 
 void TORICA_WebServer::update (char *p) {
   strncpy(data, p, 256);

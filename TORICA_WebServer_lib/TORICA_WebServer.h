@@ -24,7 +24,7 @@ class TORICA_WebServer {
     void update(char *p);
 
   private:
-    static char data[256];
+    static char data[10*1024];
     static void handleRoot();
     static void getData();
     static void loop(void *param);
