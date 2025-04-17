@@ -3,7 +3,7 @@
 #ifndef INDEX_H
 #define INDEX_H
 
-char html[] = R"(
+static const char html[] = R"(
 
 <!DOCTYPE html>
 <html lang='ja'>
