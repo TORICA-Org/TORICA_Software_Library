@@ -76,7 +76,7 @@ char html[] = R"(
       }, 200);
     }
 
-    setTimeout(updateData,100);
+    setTimeout(updateData,500);
   </script>
 </html>
 

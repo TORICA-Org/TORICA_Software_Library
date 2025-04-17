@@ -7,17 +7,19 @@ const char *softAP_ssid = WIFI_SSID;
 const char *softAP_password = WIFI_PASSWORD;
 const byte DNS_PORT = 53;
 
+#define STACK_SIZE 4096
+StaticTask_t xTaskBuffer;
+StackType_t xStack[STACK_SIZE];
+
 DNSServer DNSServerInstance;
 WebServer WebServerInstance(80);
 IPAddress apIP(172, 217, 28, 1);
 IPAddress netMsk(255, 255, 255, 0);
 
-TORICA_WebServer::TORICA_WebServer () {}
+char* TORICA_WebServer::_p = NULL;
 
-char TORICA_WebServer::data[10*1024];
-
-void TORICA_WebServer::update (char *p) {
-  strncpy(data, p, 256);
+TORICA_WebServer::TORICA_WebServer (char* p) {
+  _p = p;
 }
 
 void TORICA_WebServer::handleRoot () {
@@ -28,14 +30,14 @@ void TORICA_WebServer::handleRoot () {
 }
 
 void TORICA_WebServer::getData () {
-  WebServerInstance.send(200, "text/html", data);
+  WebServerInstance.send(200, "text/html", _p);
 }
 
 void TORICA_WebServer::loop (void *param) {
     while (true) {
         DNSServerInstance.processNextRequest();
         WebServerInstance.handleClient();
-        delay(10);
+        vTaskDelay(10/portTICK_RATE_MS);
     }
 }
 
@@ -61,12 +63,13 @@ void TORICA_WebServer::begin () {
   WebServerInstance.begin();
 
   //マルチスレッドでタスクを実行
-  xTaskCreate(
+  xTaskCreateStatic(
     loop, //タスク関数へのポインタ
     "WebServerLoop", //タスク名
-    4096, //スタックサイズ
+    STACK_SIZE, //スタックサイズ
     NULL, //タスクのパラメータのポインタ
-    2, //タスクの優先順位
-    NULL //タスクのHandleへのポインタ
+    10, //タスクの優先順位
+    xStack, //タスクのスタックとして使用する配列
+    &xTaskBuffer //タスクのデータ構造体へのポインタ
   );
 }

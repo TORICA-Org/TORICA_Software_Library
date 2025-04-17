@@ -9,7 +9,7 @@
 //→「.ZIP形式のライブラリをインストール...」
 
 //「ログインが必要です」などと表示される画面（キャプティブポータル）で
-//10KB以下の任意の文字列（改行コードを含む）をモニターできます．
+//任意の文字列（改行コードを含む）をモニターできます．
 
 //WiFiのSSIDは TORICA WebServer
 //WiFiのPASSWORDは toricadensou です．
@@ -21,7 +21,8 @@
 
 #include <TORICA_WebServer.h>
 
-TORICA_WebServer webserver;
+static char data[256]; // 静的メモリ領域に配列を作成
+TORICA_WebServer webserver(data);
 
 void setup() {
   webserver.begin();
@@ -29,8 +30,6 @@ void setup() {
 
 void loop() {
   uint32_t now = millis();
-  static char str[128];
-  sprintf(str, "改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
-  webserver.update(str);
+  sprintf(data, "改行コードが使用可能です．\n\n以下は実行を開始してからの時間をミリ秒で表示しています．\n%d", now);
   delay(100);
 }

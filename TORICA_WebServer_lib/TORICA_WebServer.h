@@ -19,15 +19,14 @@
 
 class TORICA_WebServer {
   public:
-    TORICA_WebServer();
+    TORICA_WebServer(char* p);
     void begin();
-    void update(char *p);
 
   private:
-    static char data[10*1024];
+    static char* _p;
     static void handleRoot();
     static void getData();
-    static void loop(void *param);
+    static void loop(void* param);
 };
 
 #endif // TORICA_WEBSERVER_H
