@@ -13,7 +13,7 @@ StackType_t xStack[STACK_SIZE];
 
 DNSServer DNSServerInstance;
 WebServer WebServerInstance(80);
-IPAddress apIP(172, 217, 28, 1);
+IPAddress apIP(192, 168, 4, 1);
 IPAddress netMsk(255, 255, 255, 0);
 
 char* TORICA_WebServer::_p = NULL;

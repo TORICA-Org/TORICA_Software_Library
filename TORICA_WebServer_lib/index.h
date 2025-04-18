@@ -56,7 +56,7 @@ static const char html[] = R"(
         .then(() => {
           setTimeout(() => {
             updateData();
-          }, 200);
+          }, 500);
         })
         .catch(() => {
           console.error('Rejected getData');
@@ -73,10 +73,10 @@ static const char html[] = R"(
         const monitor = document.getElementById('monitor');
         monitor.textContent = '現在の時刻を表示しています\n\n' + now;
         dummy();
-      }, 200);
+      }, 100);
     }
 
-    setTimeout(updateData,500);
+    setTimeout(updateData,100);
   </script>
 </html>
 
