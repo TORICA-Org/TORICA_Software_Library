@@ -56,7 +56,7 @@ static const char html[] = R"(
         .then(() => {
           setTimeout(() => {
             updateData();
-          }, 500); // Polling Interval
+          }, 1000); // Polling Interval
         })
         .catch(() => {
           console.error('Rejected getData');
