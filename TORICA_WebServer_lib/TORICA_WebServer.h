@@ -26,6 +26,7 @@ class TORICA_WebServer {
     static char* _p;
     static void handleRoot();
     static void getData();
+    static void handlePing();
     static void loop(void* param);
 };
 

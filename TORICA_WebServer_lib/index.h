@@ -28,7 +28,7 @@ static const char html[] = R"(
       font-size: 15 px;
       text-align: left;
       word-wrap: break-word;
-      white-space: pre-wrap; /* 改行コードを有効化 */
+      white-space: pre-line; /* 改行コードを有効化 */
     }
     .monitor {
       margin: 10px auto;
@@ -45,38 +45,38 @@ static const char html[] = R"(
     </div>
   </body>
   <script type='text/javascript'>
-    function updateData() {
-      const getData = fetch('/get/data')
+    function streamData() {
+      const eventSource = new EventSource('/get/data'); // ストリーミング用エンドポイント
+
+      eventSource.onmessage = (event) => {
+        console.log('New data: ' + event.data);
+        document.getElementById('monitor').textContent = event.data;
+      };
+
+      eventSource.onerror = () => {
+        console.error('Error occurred. Reconnecting in 3 seconds...', event);
+        setTimeout(() => {
+          eventSource.close();
+          streamData();
+        }, 3000); // Reconnecting Delay
+      };
+    }
+    
+    function keepAlivePing() {
+      fetch('/ping', {headers: {'Connection': 'keep-alive'}})
         .then((response) => response.text())
-        .then((data) => {
-          console.log(data);
-          const monitor = document.getElementById('monitor');
-          monitor.textContent = data;
+        .then((result) => {
+          console.log('Ping response: ' + result);
+          setTimeout(keepAlivePing, 5000); // Ping Interval
         })
-        .then(() => {
-          setTimeout(() => {
-            updateData();
-          }, 3000); // Polling Interval
-        })
-        .catch(() => {
-          console.error('Rejected getData');
-          setTimeout(() => {
-            updateData();
-          }, 1000);
+        .catch((error) => {
+          console.error('Ping error: ' + error);
+          setTimeout(keepAlivePing, 1000); // Ping Interval on Error
         });
     }
-
-    function dummy() {
-      setTimeout(() => {
-        const now = new Date();
-        console.log(now);
-        const monitor = document.getElementById('monitor');
-        monitor.textContent = '現在の時刻を表示しています\n\n' + now;
-        dummy();
-      }, 100);
-    }
-
-    setTimeout(updateData,1000); // Function Start Timing
+    
+    setTimeout(streamData, 500); // Function Start Timing
+    setTimeout(keepAlivePing, 5000);
   </script>
 </html>
 

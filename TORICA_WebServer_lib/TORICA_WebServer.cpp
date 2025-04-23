@@ -13,7 +13,7 @@ StackType_t xStack[STACK_SIZE];
 
 DNSServer DNSServerInstance;
 WebServer WebServerInstance(80);
-IPAddress apIP(192, 168, 4, 1);
+IPAddress apIP(198, 168, 4, 1);
 IPAddress netMsk(255, 255, 255, 0);
 
 char* TORICA_WebServer::_p = NULL;
@@ -30,7 +30,26 @@ void TORICA_WebServer::handleRoot () {
 }
 
 void TORICA_WebServer::getData () {
-  WebServerInstance.send(200, "text/html", _p);
+  // ストリーミング用HTTPヘッダー
+  WebServerInstance.sendHeader("Content-type", "text/event-stream");
+  WebServerInstance.sendHeader("Cache-Control", "no-cache, no-store");
+  WebServerInstance.sendHeader("Connection", "keep-alive");
+  // 初期レスポンスの送信
+  WebServerInstance.send(200, "text/event-stream", "");
+
+  // 接続が維持されている間，無限ループでデータを送信
+  while (WebServerInstance.client()) {
+    WebServerInstance.sendContent("data:");
+    WebServerInstance.sendContent(_p);
+    WebServerInstance.sendContent("\n\n");
+    vTaskDelay(1000/portTICK_RATE_MS);
+  }
+}
+
+void TORICA_WebServer::handlePing () {
+  WebServerInstance.sendHeader("Content-type", "text/event-stream");
+  WebServerInstance.sendHeader("Cache-Control", "no-cache, no-store");
+  WebServerInstance.send(200, "text/plain", "OK");
 }
 
 void TORICA_WebServer::loop (void *param) {
@@ -60,6 +79,7 @@ void TORICA_WebServer::begin () {
   WebServerInstance.on("/fwlink", handleRoot);
   WebServerInstance.onNotFound(handleRoot);
   WebServerInstance.on("/get/data", getData);
+  WebServerInstance.on("/ping", handlePing);
   WebServerInstance.begin();
 
   //マルチスレッドでタスクを実行
