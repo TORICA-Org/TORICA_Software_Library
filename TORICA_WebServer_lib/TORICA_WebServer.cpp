@@ -72,7 +72,9 @@ void TORICA_WebServer::begin () {
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
   DNSServerInstance.setErrorReplyCode(DNSReplyCode::NoError);
-  DNSServerInstance.start(DNS_PORT, "*", apIP);
+  Serial.println("Starting DNS Server...");
+  bool dnsStatus = DNSServerInstance.start(DNS_PORT, "*", apIP);
+  Serial.println(dnsStatus ? "DNS Server started successfully" : "DNS Server start failed!");
 
   WebServerInstance.on("/", handleRoot);
   WebServerInstance.on("/generate_204", handleRoot);
@@ -81,6 +83,7 @@ void TORICA_WebServer::begin () {
   WebServerInstance.on("/get/data", getData);
   WebServerInstance.on("/ping", handlePing);
   WebServerInstance.begin();
+  Serial.println("Web Server started successfully");
 
   //マルチスレッドでタスクを実行
   xTaskCreateStatic(
@@ -88,8 +91,10 @@ void TORICA_WebServer::begin () {
     "WebServerLoop", //タスク名
     STACK_SIZE, //スタックサイズ
     NULL, //タスクのパラメータのポインタ
-    10, //タスクの優先順位
+    2, //タスクの優先順位
     xStack, //タスクのスタックとして使用する配列
     &xTaskBuffer //タスクのデータ構造体へのポインタ
   );
+
+  Serial.println("xTaskCreateStatic success");
 }
