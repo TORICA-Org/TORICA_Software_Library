@@ -32,6 +32,9 @@ void TORICA_WebServer::handleRoot () {
 }
 
 void TORICA_WebServer::getData () {
+  if (100 <= index) {
+    index = 0;
+  }
   sprintf(data, "%02d", index);
   for (int i = 0; i < LENGTH-1; i++) {
     data[2 + i] = _p[((LENGTH - 3) * index) + i];
@@ -39,8 +42,9 @@ void TORICA_WebServer::getData () {
       index = 0;
       break;
     }
-    i++;
   }
+  index++;
+  
   Serial.print("data: [");
   Serial.print(data);
   Serial.println("]");

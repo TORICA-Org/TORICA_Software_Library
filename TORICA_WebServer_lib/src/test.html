@@ -7,19 +7,21 @@
 		<p id="3" name="content">3</p>
 	</body>
 	<script>
+	let i = 0;
 	function justify () {
 		const contents = document.getElementsByName('content');
-		for (let i=0; i<contents.length; i++) {
-			for (let j=i+1; j<contents.length; j++) {
-				const before = contents[i];
-				const after = contents[j];
-				if (after.id < before.id) {
-					after.after(before);
-					i=0;
-				}
-			}
+		if (i<contents.length) {
+            for (let j=i+1; j<contents.length; j++) {
+              const before = contents[i];
+              const after = contents[j];
+              if (after.id < before.id) {
+                after.after(before);
+                i=0;
+              }
+            }
+			i++;
 		}
-		return 'justified!';
+		return `i: ${i}`;
 	}
 	</script>
 </html>
