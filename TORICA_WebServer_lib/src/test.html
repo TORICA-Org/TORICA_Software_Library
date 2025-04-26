@@ -1,0 +1,25 @@
+<html>
+	<body>
+		<p id="4" name="content">4</p>
+		<p id="5" name="content">5</p>
+		<p id="1" name="content">1</p>
+		<p id="2" name="content">2</p>
+		<p id="3" name="content">3</p>
+	</body>
+	<script>
+	function justify () {
+		const contents = document.getElementsByName('content');
+		for (let i=0; i<contents.length; i++) {
+			for (let j=i+1; j<contents.length; j++) {
+				const before = contents[i];
+				const after = contents[j];
+				if (after.id < before.id) {
+					after.after(before);
+					i=0;
+				}
+			}
+		}
+		return 'justified!';
+	}
+	</script>
+</html>
