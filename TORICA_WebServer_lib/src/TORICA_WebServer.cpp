@@ -42,6 +42,9 @@ void TORICA_WebServer::getData () {
       index = 0;
       break;
     }
+    if (i == LENGTH-2) {
+      data[LENGTH-1] = '\0';
+    }
   }
   index++;
   
