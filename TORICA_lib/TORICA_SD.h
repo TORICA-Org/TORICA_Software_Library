@@ -29,7 +29,7 @@
 #define SD_SPI_SCK (18)
 #define SD_SPI_MOSI (19)
 #define SD_SPI_MISO (16)
-#define SD_SPI_CSn (25)
+#define SD_SPI_CSn (17)
 #else
 // other board
 //#define TORICA_SD_BUF_SIZE 1024
