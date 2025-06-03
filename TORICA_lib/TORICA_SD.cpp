@@ -18,7 +18,6 @@ bool TORICA_SD::begin()
   SPI.setSCK(SD_SPI_SCK);
   SPI.setTX(SD_SPI_MOSI);
   if (!SD.begin(cs_SD, SPI))
-
 #else
   if (!SD.begin(cs_SD))
 #endif
