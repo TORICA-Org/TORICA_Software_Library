@@ -78,7 +78,7 @@ bool IcsHardSerialClass::begin()
     return false;
   }
 
-  icsHardSerial->begin(baudRate,SERIAL_8E1);
+  icsHardSerial->begin(baudRate/*,SERIAL_8E1*/); // 2025/06/23: 修正 偶数パリティの無効化
   icsHardSerial->setTimeout(timeOut);
   pinMode(enPin, OUTPUT);
   enLow();
