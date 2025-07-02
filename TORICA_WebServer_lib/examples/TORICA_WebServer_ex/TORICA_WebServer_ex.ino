@@ -30,7 +30,7 @@ JSONを記述するのに役立ちます．
 )";
 
 const int data_num = 5;
-const int priority = 2; // タスクの優先順位：WebServerがうまく動作しないときには調整してください．(range: 1 ~ 32)
+const int priority = 2; // タスクの優先順位：WebServerがうまく動作しないときには調整してください．(range: 1 ~ 8)
 TORICA_WebServer<data_num> webserver(constant_massage);
 
 void setup() {
