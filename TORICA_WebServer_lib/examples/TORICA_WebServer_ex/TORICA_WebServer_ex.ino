@@ -10,7 +10,7 @@
 //Raspberry Pi Pico W
 //Raspberry Pi Pico 2W
 
-#include <TORICA_WebServer.h>
+#include "TORICA_WebServer.h"
 
 const char *ssid = "TORICA WebServer";
 const char *password = "toricadensou";
@@ -30,6 +30,7 @@ JSONを記述するのに役立ちます．
 )";
 
 const int data_num = 5;
+const int priority = 2; // タスクの優先順位：WebServerがうまく動作しないときには調整してください．(range: 1 ~ 32)
 TORICA_WebServer<data_num> webserver(constant_massage);
 
 void setup() {
@@ -41,7 +42,7 @@ void setup() {
   webserver.makeLabel("data3");
   webserver.makeLabel("data4");
   webserver.makeLabel("data5");
-  webserver.begin(ssid, password);
+  webserver.begin(ssid, password, priority);
 
   #ifdef ARDUINO_ARCH_RP2040 //RP2040及びRP2350のチェックに対応
   pinMode(LED_BUILTIN, OUTPUT);

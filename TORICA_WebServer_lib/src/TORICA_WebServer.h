@@ -26,7 +26,7 @@ class TORICA_WebServer {
     ~TORICA_WebServer();
     void makeLabel(const char *_label_p);
     void updateContent(const char *_label_p, const char *_content_p);
-    void begin(const char *_ssid, const char *_password);
+    void begin(const char *_ssid, const char *_password, const int _priority);
 
   private:
     WebServer _server;
@@ -177,7 +177,7 @@ void TORICA_WebServer<DATA_SIZE>::loop (void *_param) {
 }
 
 template <size_t DATA_SIZE>
-void TORICA_WebServer<DATA_SIZE>::begin (const char *_ssid, const char *_password) {
+void TORICA_WebServer<DATA_SIZE>::begin (const char *_ssid, const char *_password, const int _priority) {
   WiFi.disconnect(true);//これがないとwebServerを再起動できない
   delay(1000);//この遅延は必須（これがないとwebServerが起動しない）
   WiFi.softAPConfig(_apIP, _apIP, _netMsk);
@@ -206,7 +206,7 @@ void TORICA_WebServer<DATA_SIZE>::begin (const char *_ssid, const char *_passwor
     "WebServerLoop", //タスク名
     STACK_SIZE, //スタックサイズ
     this, //インスタンス自身のポインタ
-    2, //タスクの優先順位
+    (UBaseType_t)_priority, //タスクの優先順位
     xStack, //タスクのスタックとして使用する配列
     &xTaskBuffer //タスクのデータ構造体へのポインタ
   );
