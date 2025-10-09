@@ -1,3 +1,5 @@
+#pragma once // インクルードガード
+
 // https://qiita.com/MergeCells/items/85a860150735730faabc
 #if defined(ARDUINO_SAM_DUE)
 // DUE RAM 96KB

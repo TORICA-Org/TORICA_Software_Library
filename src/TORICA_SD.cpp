@@ -18,7 +18,8 @@ bool TORICA_SD::begin()
   SPI.setSCK(SD_SPI_SCK);
   SPI.setTX(SD_SPI_MOSI);
   if (!SD.begin(cs_SD, SPI))
-#else
+#else // 上記2つのマイコン以外はこのプリプロセッサが実行される
+  // SPIのRX(MISO),CS(CSn),SCK,TX(MOSI)はすべて設定する必要がある
   if (!SD.begin(cs_SD))
 #endif
   {
@@ -45,7 +46,8 @@ void TORICA_SD::add_str(char str[])
 
 void TORICA_SD::new_file()
 {
-  String s;
+  String s; // ここでStringクラスを使う理由がよくわからない
+  // 0埋めもsprintfのほうがやりやすいし，高速
   int fileNum = 0;
   while (1)
   {
@@ -78,7 +80,9 @@ void TORICA_SD::flash()
 
   if (SDisActive)
   {
-    if (millis() - file_time > 10 * 60 * 1000)
+    if (millis() - file_time > 10 * 60 * 1000) // 10分ごとにデータが区切られている
+    // 区切ってもいいんだけど，LOG0001がLOG0002になるだけで，スイッチを切って区切られた時と見分けがつかない
+    // LOG0001_001とかLOG0001Aとかで連番を組み合わせにするか，10分区切りを廃止する
     {
       dataFile.close();
       new_file();
