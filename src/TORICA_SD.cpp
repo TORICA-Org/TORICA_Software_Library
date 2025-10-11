@@ -3,8 +3,22 @@
 #include <SPI.h>
 #include <SD.h>
 
-bool TORICA_SD::begin()
+TORICA_SD::TORICA_SD(bool _retry) // for CORE
 {
+  retry = _retry;
+  MODE = CORE;
+}
+
+TORICA_SD::TORICA_SD(int _cs_SD, bool _retry) // for LEGACY
+{
+  cs_SD = _cs_SD;
+  retry = _retry;
+}
+
+bool TORICA_SD::begin() // for LEGACY
+{
+  if(MODE != LEGACY) return false;
+
   SERIAL_USB.print("Initializing SD card...");
 #if defined(SEEED_XIAO_RP2040)
   SPI.setRX(SD_SPI_MISO);
@@ -18,10 +32,31 @@ bool TORICA_SD::begin()
   SPI.setSCK(SD_SPI_SCK);
   SPI.setTX(SD_SPI_MOSI);
   if (!SD.begin(cs_SD, SPI))
-#else // 上記2つのマイコン以外はこのプリプロセッサが実行される
+#else
+  // 上記2つのマイコン以外はこのプリプロセッサが実行される
   // SPIのRX(MISO),CS(CSn),SCK,TX(MOSI)はすべて設定する必要がある
   if (!SD.begin(cs_SD))
 #endif
+  {
+    SERIAL_USB.println("Card failed, or not present");
+    SDisActive = false;
+    return false;
+  }
+  new_file();
+  dataFile = SD.open(fileName, FILE_WRITE);
+
+  SERIAL_USB.println("card initialized.");
+
+  SDisActive = true;
+  return true;
+}
+
+bool TORICA_SD::begin(int _cs_SD) // for CORE
+{
+  if(MODE != CORE) return false;
+  
+  // SPIのRX(MISO),CS(CSn),SCK,TX(MOSI)はすべて設定する必要がある
+  if (!SD.begin(cs_SD))
   {
     SERIAL_USB.println("Card failed, or not present");
     SDisActive = false;
@@ -40,55 +75,54 @@ void TORICA_SD::add_str(char str[])
 {
   if (SDisActive)
   {
-    dataFile.write(str, strlen(str));
+    dataFile.write((const uint8_t*)str, strlen(str)); // バッファに書き込み
   }
 }
 
-void TORICA_SD::new_file()
+void TORICA_SD::new_file() // ファイル名の連番`LOG00-00.CSV`を生成
 {
-  String s; // ここでStringクラスを使う理由がよくわからない
-  // 0埋めもsprintfのほうがやりやすいし，高速
-  int fileNum = 0;
-  while (1)
+  if (subNum == 0) // 電源投入時
   {
-    s = "LOG";
-    if (fileNum < 10)
+    while (1)
     {
-      s += "000";
+      sprintf(fileName, "LOG%02d-00.CSV", mainNum);
+      if (!(SD.exists(fileName)))
+      {
+        subNum++;
+        break;
+      }
+      mainNum++;
     }
-    else if (fileNum < 100)
-    {
-      s += "00";
-    }
-    else if (fileNum < 1000)
-    {
-      s += "0";
-    }
-    s += fileNum;
-    s += ".CSV";
-    s.toCharArray(fileName, 16);
-    if (!SD.exists(fileName))
-      break;
-    fileNum++;
+  } 
+  else // ファイル区切り
+  {
+    sprintf(fileName, "LOG%02d-%02d.CSV", mainNum, subNum);
+    subNum++;
   }
   file_time = millis();
 }
 
-void TORICA_SD::flash()
+void TORICA_SD::flash() // ファイルサイズを監視しつつ，SDに書き込み
 {
   uint32_t SD_time = millis();
 
+  if (retry && (!dataFile || !SDisActive))
+  {
+    SERIAL_USB.println("error opening file");
+    end();
+    SDisActive = begin();
+  }
+
   if (SDisActive)
   {
-    if (millis() - file_time > 10 * 60 * 1000) // 10分ごとにデータが区切られている
-    // 区切ってもいいんだけど，LOG0001がLOG0002になるだけで，スイッチを切って区切られた時と見分けがつかない
-    // LOG0001_001とかLOG0001Aとかで連番を組み合わせにするか，10分区切りを廃止する
+    if (millis() - file_time > 10 * 60 * 1000) // 10分ごとにファイルを区切る
     {
       dataFile.close();
       new_file();
       dataFile = SD.open(fileName, FILE_WRITE);
     }
-    if (dataFile.size() >= TORICA_SD_MAX_FILE_SIZE)
+
+    if (dataFile.size() >= TORICA_SD_MAX_FILE_SIZE) // ファイルサイズでファイルを区切る
     {
       SERIAL_USB.println("TORICA_SD_MAX_FILE_SIZE");
       dataFile.close();
@@ -98,19 +132,12 @@ void TORICA_SD::flash()
 
     if (dataFile)
     {
-      dataFile.flush();
+      dataFile.flush(); // SDに書き込み
       // SERIAL_USB.println("SD_buf_count,SD_total");
       // SERIAL_USB.print(",");
       uint32_t SD_total = millis() - SD_time;
       // SERIAL_USB.println(SD_total);
     }
-  }
-
-  if (retry && (!dataFile || !SDisActive))
-  {
-    SERIAL_USB.println("error opening file");
-    end();
-    SDisActive = begin();
   }
 }
 

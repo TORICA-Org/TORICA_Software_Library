@@ -41,18 +41,21 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include <SD.h>
+#include <SD.h> // グローバルの`SD`オブジェクトが自動生成される
+
+enum mode {
+  LEGACY, // 25代まで使用していた動作
+  CORE // SPI関連の設定を外部で行う動作に変更
+};
 
 class TORICA_SD
 {
 public:
-  TORICA_SD(int _cs_SD, bool _retry = true)
-  {
-    cs_SD = _cs_SD;
-    retry = _retry;
-  }
+  TORICA_SD(bool _retry = true);
+  TORICA_SD(int _cs_SD, bool _retry = true);
 
   bool begin();
+  bool begin(int _cs_SD);
   void add_str(char str[]);
   void flash();
   volatile bool SDisActive = false;
@@ -62,12 +65,16 @@ private:
   void end();
   volatile uint32_t file_time = 0;
 
-  volatile int cs_SD = LED_BUILTIN;
+  volatile int cs_SD = 1;
   char fileName[16];
+  int mainNum = 0;
+  int subNum = 0;
   File dataFile;
   volatile bool retry = true;
   //volatile uint32_t file_size = 0;
   //volatile char SD_buf[2][TORICA_SD_BUF_SIZE];
   //volatile int SD_buf_index = 0;
   //volatile uint32_t SD_buf_count[2] = {0, 0};
+
+  mode MODE = CORE;
 };

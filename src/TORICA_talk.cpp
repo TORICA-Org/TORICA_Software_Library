@@ -22,7 +22,7 @@ void TORICA_talk::talk_str(char str[]){
   
   Wire1.beginTransmission(0x2E); // スタートとスレーブアドレスを送る役割　（swの役割）
   
-  Wire1.write(str,strlen(str)*sizeof(char)); 
+  Wire1.write((const uint8_t*)str,strlen(str)*sizeof(char)); 
  // Wire1.write('\r'); 
 
   //Wire1.endTransmission();    // stop transmitting
