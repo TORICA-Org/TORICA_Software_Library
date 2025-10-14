@@ -43,7 +43,8 @@ class TORICA_WebServer {
     const char *_constant_message = NULL;
 
     const uint32_t STACK_SIZE = 8192;
-    TaskHandle_t webServerTaskHandle;
+    StackType_t xStack[STACK_SIZE];
+    StaticTask_t xTaskBuffer;
 
     void handleRoot();
     void sendConstantMessage();
@@ -159,6 +160,10 @@ void TORICA_WebServer<DATA_SIZE>::sendData () {
   }
 
   snprintf(buff, buff_length, R"({"index":"%d","content":"%s"})", index, _data_array[index].content);
+  #ifdef ARDUINO_ARCH_ESP32
+  //_server.sendHeader("Connection", "keep-alive"); 
+  //Serial.println("Keep-Alive!");
+  #endif
   _server.send(200, "application/json", buff);
   free(buff);
 }
@@ -199,27 +204,26 @@ void TORICA_WebServer<DATA_SIZE>::begin (const char *_ssid, const char *_passwor
   _server.on("/data", [this]() {this -> sendData();} );
   _server.begin();
 
-  #ifdef ESP_PLATFORM
-  //マルチスレッドでタスクを実行
-  xTaskCreateUniversal(
-    loop, //タスク関数へのポインタ
-    "WebServerLoop", //タスク名
-    STACK_SIZE, //スタックサイズ
-    NULL, //タスクのパラメータ
-    (UBaseType_t)_priority, //タスクの優先順位
-    &webServerTaskHandle, //タスクのハンドルへのポインタ
-    0 //利用するコア
-  );
-  #elif ARDUINO_ARCH_RP2040 //RP2040及びRP2350のチェックに対応
-  xTaskCreate(
-    loop, //タスク関数へのポインタ
-    "WebServerLoop", //タスク名
-    STACK_SIZE, //スタックサイズ
-    NULL, //タスクのパラメータ
-    (UBaseType_t)_priority, //タスクの優先順位
-    &webServerTaskHandle //タスクのハンドルへのポインタ
-  );
+  #if ESP_PLATFORM
+  Serial.println("ESP_PLATFORM");
   #endif
+  #if ARDUINO_ARCH_ESP32
+  Serial.println("ARDUINO_ARCH_ESP32");
+  #endif
+  #if ARDUINO_ARCH_RP2040
+  Serial.println("ARDUINO_ARCH_RP2040");
+  #endif
+
+  //マルチスレッドでタスクを実行
+  xTaskCreateStatic(
+    loop, //タスク関数へのポインタ
+    "WebServerLoop", //タスク名
+    STACK_SIZE, //スタックサイズ
+    this, //インスタンス自身のポインタ
+    (UBaseType_t)_priority, //タスクの優先順位
+    xStack, //タスクのスタックとして使用する配列
+    &xTaskBuffer //タスクのデータ構造体へのポインタ
+  );
 }
 
 #endif // TORICA_WEBSERVER_H
