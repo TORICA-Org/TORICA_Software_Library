@@ -49,7 +49,7 @@ const char html[] = R"(
     box-sizing: border-box;
     width: 90%;
     max-width: 500px;
-    font-size: 15px;
+    font-size: large;
     text-align: left;
     word-wrap: break-word;
     white-space: pre-line;
@@ -73,6 +73,7 @@ const char html[] = R"(
   }
   .label {
     display: block;
+    font-size: x-large;
     font-weight: bold;
     flex-grow: 1;
     flex-basis: 0;
@@ -80,6 +81,8 @@ const char html[] = R"(
   }
   .content {
     display: block;
+    font-size: x-large;
+    font-weight: bold;
     flex-grow: 1;
     flex-basis: 0;
     text-align: center;

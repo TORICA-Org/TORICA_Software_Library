@@ -14,8 +14,6 @@
 #include <DNSServer.h>
 #include <WebServer.h>
 
-#include "TORICA_WebServer_Index.h"
-
 struct data {
   char label[64];
   char content[32];
@@ -42,9 +40,9 @@ class TORICA_WebServer {
     data _data_array[DATA_SIZE];
     const char *_constant_message = NULL;
 
-    const uint32_t STACK_SIZE = 8192;
-    StackType_t xStack[STACK_SIZE];
+    static const uint32_t STACK_SIZE = 8192;
     StaticTask_t xTaskBuffer;
+    StackType_t xStack[STACK_SIZE];
 
     void handleRoot();
     void sendConstantMessage();
@@ -55,6 +53,8 @@ class TORICA_WebServer {
 };
 
 //===メンバ関数の定義======================================
+
+#include "TORICA_WebServer_Index.h"
 
 template <size_t DATA_SIZE>
 TORICA_WebServer<DATA_SIZE>::TORICA_WebServer (const char *_constant_massage_p)
@@ -158,12 +158,11 @@ void TORICA_WebServer<DATA_SIZE>::sendData () {
     free(error);
     return;
   }
-
   snprintf(buff, buff_length, R"({"index":"%d","content":"%s"})", index, _data_array[index].content);
-  #ifdef ARDUINO_ARCH_ESP32
-  //_server.sendHeader("Connection", "keep-alive"); 
-  //Serial.println("Keep-Alive!");
-  #endif
+#ifdef ESP_PLATFORM
+  _server.sendHeader("Connection", "keep-alive"); 
+  _server.sendHeader("Keep-Alive", "timeout=5, max=100"); 
+#endif
   _server.send(200, "application/json", buff);
   free(buff);
 }
@@ -203,16 +202,6 @@ void TORICA_WebServer<DATA_SIZE>::begin (const char *_ssid, const char *_passwor
   _server.on("/config", [this]() {this -> sendConfig();} );
   _server.on("/data", [this]() {this -> sendData();} );
   _server.begin();
-
-  #if ESP_PLATFORM
-  Serial.println("ESP_PLATFORM");
-  #endif
-  #if ARDUINO_ARCH_ESP32
-  Serial.println("ARDUINO_ARCH_ESP32");
-  #endif
-  #if ARDUINO_ARCH_RP2040
-  Serial.println("ARDUINO_ARCH_RP2040");
-  #endif
 
   //マルチスレッドでタスクを実行
   xTaskCreateStatic(
