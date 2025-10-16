@@ -4,7 +4,7 @@
 
 //質問（このクラスオブジェクトの生成をしないとしたのCONVERT_numでtalk_strが使えないのではないか？）
 
-
+#ifndef ESP_PLATFORM // ESP32C3でコンパイル不可能だった（Wire1などが存在しない）ため，プリプロセッサで回避
 
 void TORICA_talk::talk_num(float num){
 
@@ -42,3 +42,5 @@ void TORICA_talk::callout_val(float val){
     Wire1.write('\r');
     Wire1.endTransmission();
 }
+
+#endif
