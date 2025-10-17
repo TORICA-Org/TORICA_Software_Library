@@ -1,4 +1,7 @@
+#pragma once // インクルードガード
+
 #include <Arduino.h>
+
 class TORICA_UART {
   public:
     TORICA_UART(Stream *_serial) {

@@ -1,3 +1,5 @@
+#pragma once // インクルードガード
+
 #include <Arduino.h>
 
 /*
